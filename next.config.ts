@@ -11,7 +11,14 @@ const homepage = path.posix.join(ROOT, 'content/index.md')
 const { data } = frontmatter(fs.readFileSync(homepage, 'utf8'))
 const productIds = data.children as string[]
 
+// Base44 preview: allow the sandbox preview origin for Next.js dev assets/HMR.
+const allowedDevOrigins: string[] = []
+if (process.env.BASE44_PREVIEW_MODE === '1' && process.env.BASE44_PUBLIC_HOST_SUFFIX) {
+  allowedDevOrigins.push(`https://3000-${process.env.BASE44_PUBLIC_HOST_SUFFIX}`)
+}
+
 const config: NextConfig = {
+  allowedDevOrigins,
   // Transpile @primer/react and @primer/react-brand so Next's webpack can process their
   // CSS and other assets. This ensures CSS from these node_modules packages is handled by
   // the app's loaders.

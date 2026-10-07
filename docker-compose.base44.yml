@@ -1,0 +1,22 @@
+services:
+  web:
+    image: node:24-bookworm
+    working_dir: /home/node/app
+    volumes:
+      - .:/home/node/app
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - CHOKIDAR_USEPOLLING=true
+      - BASE44_PREVIEW_MODE
+      - BASE44_PUBLIC_HOST_SUFFIX
+      - BASE44_SANDBOX_HOST_DOMAIN
+    command: ["sh", "-ec", "npm ci --ignore-scripts && npx --no-install patch-package --error-on-fail && exec npm start"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/healthcheck',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 180s
+    restart: on-failure
